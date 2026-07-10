@@ -43,6 +43,7 @@
         <option value="last90">Last 90 days</option>
         <option value="mtd">Month to date</option>
         <option value="ytd">Year to date</option>
+        <option value="alltime">All time</option>
         <option value="custom">Custom range</option>
       </select>
       <div class="date-range-inputs" id="custom-range" style="display:none;">
@@ -86,7 +87,8 @@
       if (preset === "last60") start.setDate(end.getDate() - 60);
       if (preset === "last90") start.setDate(end.getDate() - 90);
       if (preset === "mtd")    start.setDate(1);
-      if (preset === "ytd")  { start.setMonth(0); start.setDate(1); }
+      if (preset === "ytd")    { start.setMonth(0); start.setDate(1); }
+      if (preset === "alltime") { start.setFullYear(2020); start.setMonth(0); start.setDate(1); }
       return { start: fmt(start), end: fmt(end) };
     }
 
