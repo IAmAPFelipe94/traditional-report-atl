@@ -62,7 +62,7 @@
             <th>Leads</th>
             <th>Won</th>
             <th>Value</th>
-            <th>ROAS</th>
+            <th>Close Rate</th>
             <th>Cold Leads</th>
           </tr>
         </thead>
@@ -137,7 +137,7 @@
       });
 
       const rows = Object.entries(map)
-        .map(([source, d]) => ({ source, ...d, roas: d.value > 0 ? d.value : 0 }))
+.map(([source, d]) => ({ source, ...d }))
         .sort((a, b) => b.value - a.value);
 
       tbody.innerHTML = rows.map(r => `
@@ -146,7 +146,7 @@
           <td>${r.leads}</td>
           <td>${r.won}</td>
           <td>$${r.value.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
-          <td>${r.won > 0 ? r.roas.toFixed(2) : "—"}</td>
+          <td>${r.leads > 0 ? ((r.won / r.leads) * 100).toFixed(1) + "%" : "—"}</td>
           <td class="cold">${r.cold > 0 ? r.cold : "—"}</td>
         </tr>
       `).join("");
