@@ -119,33 +119,35 @@
 
     function renderTable(startDate, endDate) {
       const tbody = document.getElementById("report-body");
-      const filtered = allData.filter(r => r.date >= startDate && r.date <= endDate);
 
-      if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="loading">No leads found for selected period.</td></tr>';
-        return;
-      }
+      // Get ALL unique sources from entire dataset (not filtered by date)
+      const allSources = [...new Set(allData.map(r => r.source).filter(Boolean))].sort();
 
-      // Aggregate by source
+      // Pre-populate all sources with zeros
       const map = {};
-      filtered.forEach(r => {
-        if (!map[r.source]) map[r.source] = { leads: 0, won: 0, value: 0, cold: 0 };
-        map[r.source].leads++;
-        map[r.source].won   += r.won   || 0;
-        map[r.source].value += r.wonValue || 0;
-        map[r.source].cold  += r.cold  || 0;
-      });
+      allSources.forEach(s => map[s] = { leads: 0, won: 0, value: 0, cold: 0 });
+
+      // Fill in data for selected date range only
+      allData
+        .filter(r => r.date >= startDate && r.date <= endDate)
+        .forEach(r => {
+          if (!map[r.source]) map[r.source] = { leads: 0, won: 0, value: 0, cold: 0 };
+          map[r.source].leads++;
+          map[r.source].won   += r.won      || 0;
+          map[r.source].value += r.wonValue || 0;
+          map[r.source].cold  += r.cold     || 0;
+        });
 
       const rows = Object.entries(map)
-.map(([source, d]) => ({ source, ...d }))
-        .sort((a, b) => b.value - a.value);
+        .map(([source, d]) => ({ source, ...d }))
+        .sort((a, b) => b.value - a.value || b.leads - a.leads);
 
       tbody.innerHTML = rows.map(r => `
         <tr>
           <td>${r.source}</td>
-          <td>${r.leads}</td>
-          <td>${r.won}</td>
-          <td>$${r.value.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+          <td>${r.leads > 0 ? r.leads : "—"}</td>
+          <td>${r.won > 0 ? r.won : "—"}</td>
+          <td>${r.value > 0 ? "$" + r.value.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}) : "—"}</td>
           <td>${r.leads > 0 ? ((r.won / r.leads) * 100).toFixed(1) + "%" : "—"}</td>
           <td class="cold">${r.cold > 0 ? r.cold : "—"}</td>
         </tr>
